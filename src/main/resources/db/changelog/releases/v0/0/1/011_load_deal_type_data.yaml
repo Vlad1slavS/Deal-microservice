@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: load-deal-type-data
+      author: Vladislav Stepanov
+      changes:
+        - loadData:
+            file: db/changelog/data/deal_type.csv
+            tableName: deal_type
+            separator: ";"
+            relativeToChangelogFile: false
+            columns:
+              - column:
+                  name: id
+                  type: STRING
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true

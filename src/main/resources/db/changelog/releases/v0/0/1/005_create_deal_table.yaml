@@ -1,0 +1,103 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-deal-table
+      author: Vladislav Stepanov
+      changes:
+        - createTable:
+            tableName: deal
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: agreement_number
+                  type: text
+              - column:
+                  name: agreement_date
+                  type: date
+              - column:
+                  name: agreement_start_dt
+                  type: timestamp
+              - column:
+                  name: availability_date
+                  type: date
+              - column:
+                  name: type_id
+                  type: varchar(30)
+              - column:
+                  name: status_id
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: close_dt
+                  type: timestamp
+              - column:
+                  name: create_date
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+              - column:
+                  name: modify_date
+                  type: timestamp
+              - column:
+                  name: create_user_id
+                  type: text
+              - column:
+                  name: modify_user_id
+                  type: text
+              - column:
+                  name: is_active
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true
+
+        - addForeignKeyConstraint:
+            baseTableName: deal
+            baseColumnNames: type_id
+            referencedTableName: deal_type
+            referencedColumnNames: id
+            constraintName: fk_deal_type
+
+        - addForeignKeyConstraint:
+            baseTableName: deal
+            baseColumnNames: status_id
+            referencedTableName: deal_status
+            referencedColumnNames: id
+            constraintName: fk_deal_status
+
+        - createIndex:
+            indexName: idx_deal_agreement_number
+            tableName: deal
+            columns:
+              - column:
+                  name: agreement_number
+
+        - createIndex:
+            indexName: idx_deal_agreement_date
+            tableName: deal
+            columns:
+              - column:
+                  name: agreement_date
+
+        - createIndex:
+            indexName: idx_deal_type_id
+            tableName: deal
+            columns:
+              - column:
+                  name: type_id
+
+        - createIndex:
+            indexName: idx_deal_status_id
+            tableName: deal
+            columns:
+              - column:
+                  name: status_id

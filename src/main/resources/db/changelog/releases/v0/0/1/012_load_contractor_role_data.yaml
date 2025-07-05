@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: load-contractor-role-data
+      author: Vladislav Stepanov
+      changes:
+        - loadData:
+            file: db/changelog/data/contractor_role.csv
+            tableName: contractor_role
+            separator: ";"
+            relativeToChangelogFile: false
+            columns:
+              - column:
+                  name: id
+                  type: STRING
+              - column:
+                  name: name
+                  type: STRING
+              - column:
+                  name: category
+                  type: STRING
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
