@@ -31,7 +31,6 @@ public class ContractorToRoleController {
         this.dealContractorService = dealContractorService;
     }
 
-
     @Operation(
             summary = "Добавить роль контрагенту сделки",
             description = "Добавляет указанную роль для контрагента по его идентификатору"

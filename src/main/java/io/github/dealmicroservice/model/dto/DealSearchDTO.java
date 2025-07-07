@@ -91,4 +91,5 @@ public class DealSearchDTO {
             allowableValues = {"ASC", "DESC"})
     @Pattern(regexp = "^(ASC|DESC)$", message = "Направление сортировки должно быть ASC или DESC")
     private String sortDirection = "ASC";
+
 }

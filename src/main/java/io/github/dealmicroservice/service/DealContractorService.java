@@ -159,4 +159,5 @@ public class DealContractorService {
         contractorToRole.setIsActive(false);
         contractorToRoleRepository.save(contractorToRole);
     }
+
 }

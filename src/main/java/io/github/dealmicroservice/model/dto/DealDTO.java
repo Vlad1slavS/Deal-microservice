@@ -2,7 +2,6 @@ package io.github.dealmicroservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +22,7 @@ import java.util.UUID;
 public class DealDTO {
 
     public interface Create {}
+
     public interface Update {}
 
     @Schema(description = "Уникальный идентификатор сделки (обязателен при обновлении)", example = "123e4567-e89b-12d3-a456-426614174000")
@@ -67,4 +67,6 @@ public class DealDTO {
     @Schema(description = "Список контрагентов сделки")
     @Transient
     private List<DealContractorDTO> contractors;
+
 }
+
