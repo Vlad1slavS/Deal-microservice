@@ -3,20 +3,34 @@ package io.github.dealmicroservice.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractorRoleDTO {
-    @NotNull(message = "ID контрагента обязателен")
-    @JsonProperty("contractor_id")
-    private UUID contractorId;
+@Builder
+public class DealContractorDTO {
 
-    @NotNull(message = "ID роли обязателен")
-    @JsonProperty("role_id")
-    private String roleId;
+    private UUID id;
+
+    @NotNull
+    @JsonProperty("deal_id")
+    private UUID dealId;
+
+    @JsonProperty("contractor_id")
+    private String contractorId;
+
+    private String name;
+
+    private String inn;
+
+    private Boolean main;
+
+    private List<RoleDTO> roles;
+
 }

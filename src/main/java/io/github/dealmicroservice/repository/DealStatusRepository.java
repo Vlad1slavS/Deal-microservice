@@ -11,6 +11,4 @@ public interface DealStatusRepository extends JpaRepository<DealStatus, String> 
     @Query("SELECT ds FROM DealStatus ds WHERE ds.id = :id AND ds.isActive = true")
     Optional<DealStatus> findByIdAndIsActive(String id);
 
-
-
 }

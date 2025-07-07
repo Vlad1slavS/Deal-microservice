@@ -8,6 +8,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.NamedEntityGraph;
+import jakarta.persistence.NamedEntityGraphs;
+import jakarta.persistence.NamedAttributeNode;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +28,33 @@ import java.util.UUID;
 @Table(name = "deal")
 @Data
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NamedEntityGraphs({
+    @NamedEntityGraph(
+        name = "Deal.withTypeAndStatus",
+        attributeNodes = {
+            @NamedAttributeNode("type"),
+            @NamedAttributeNode("status")
+        }
+    ),
+    @NamedEntityGraph(
+        name = "Deal.withSums",
+        attributeNodes = {
+            @NamedAttributeNode("type"),
+            @NamedAttributeNode("status"),
+            @NamedAttributeNode("sums")
+        }
+    ),
+    @NamedEntityGraph(
+        name = "Deal.withContractors",
+        attributeNodes = {
+            @NamedAttributeNode("type"),
+            @NamedAttributeNode("status"),
+            @NamedAttributeNode("contractors")
+        }
+    )
+})
 public class Deal {
 
     @Id
@@ -80,11 +110,10 @@ public class Deal {
     @JoinColumn(name = "status_id", insertable = false, updatable = false)
     private DealStatus status;
 
-    @OneToMany(mappedBy = "deal", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "dealId", cascade = CascadeType.ALL)
     private List<DealSum> sums;
 
-    @OneToMany(mappedBy = "deal", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "dealId", cascade = CascadeType.ALL)
     private List<DealContractor> contractors;
 
 }
-

@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      * Обработка исключения EntityNotFoundException
      */
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> EntityNotFoundException(
+    public ResponseEntity<Map<String, Object>> entityNotFoundException(
             EntityNotFoundException ex, WebRequest request) {
 
         Map<String, Object> errorBody = new HashMap<>();
@@ -36,10 +36,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Обработка исключения EntityIsEmptyException
+     */
+    @ExceptionHandler(EntityIsEmptyException.class)
+    public ResponseEntity<Map<String, Object>> entityIsEmptyException(
+            EntityNotFoundException ex, WebRequest request) {
+
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("error", "Сущность пуста");
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("status", HttpStatus.BAD_REQUEST.value());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
+    }
+
+    /**
      * Обработка ошибок валидации
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> ValidationExceptions(
+    public ResponseEntity<Map<String, Object>> validationExceptions(
             MethodArgumentNotValidException ex, WebRequest request) {
 
         Map<String, String> validationErrors = new HashMap<>();
@@ -64,14 +79,16 @@ public class GlobalExceptionHandler {
      * Обработка всех остальных исключений
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> OtherExceptions(
+    public ResponseEntity<Map<String, Object>> otherExceptions(
             Exception ex, WebRequest request) {
 
         Map<String, Object> errorBody = new HashMap<>();
         errorBody.put("error", "Внутренняя ошибка сервера");
+        errorBody.put("typeError", ex.getClass().getSimpleName());
         errorBody.put("message", ex.getMessage());
         errorBody.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
     }
+
 }

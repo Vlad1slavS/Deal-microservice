@@ -1,16 +1,12 @@
 package io.github.dealmicroservice.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.github.dealmicroservice.model.entity.Deal;
-import io.github.dealmicroservice.model.entity.DealType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UuidGenerator;
 import org.springframework.data.annotation.Transient;
 
 import java.time.LocalDate;
@@ -25,6 +21,7 @@ import java.util.UUID;
 public class DealDTO {
 
     public interface Create {}
+
     public interface Update {}
 
     @NotNull(groups = Update.class)
@@ -48,13 +45,16 @@ public class DealDTO {
     @JsonProperty("close_dt")
     private LocalDateTime closeDt;
 
-    private List<ContractorDTO> contractors;
-
+    @Transient
     private DealTypeDTO type;
 
+    @Transient
     private DealStatusDTO status;
 
+    @Transient
     private DealSumDTO sum;
 
+    @Transient
+    private List<DealContractorDTO> contractors;
 
 }

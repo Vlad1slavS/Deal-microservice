@@ -1,19 +1,29 @@
-package io.github.dealmicroservice.service;
+package io.github.dealmicroservice.mapping;
 
-import io.github.dealmicroservice.model.dto.*;
-import io.github.dealmicroservice.model.entity.*;
-import io.github.dealmicroservice.repository.DealSumRepository;
+import io.github.dealmicroservice.model.dto.DealContractorDTO;
+import io.github.dealmicroservice.model.dto.DealDTO;
+import io.github.dealmicroservice.model.dto.DealStatusDTO;
+import io.github.dealmicroservice.model.dto.DealSumDTO;
+import io.github.dealmicroservice.model.dto.RoleDTO;
+import io.github.dealmicroservice.model.dto.DealTypeDTO;
+import io.github.dealmicroservice.model.entity.Deal;
+import io.github.dealmicroservice.model.entity.DealContractor;
+import io.github.dealmicroservice.model.entity.DealStatus;
+import io.github.dealmicroservice.model.entity.DealType;
+import io.github.dealmicroservice.model.entity.ContractorToRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+/**
+ * Класс - mapper для преобразования сущностей Deal (и связных сущностей) в DTO
+ */
 @Service
 @RequiredArgsConstructor
-public class DealMappingService {
-
-    private final DealSumRepository dealSumRepository;
+public class DealMapping {
 
     public DealDTO mapToDTO(Deal deal) {
         if (deal == null) {
@@ -34,7 +44,6 @@ public class DealMappingService {
                 .contractors(mapContractorsToDTO(deal.getContractors()))
                 .build();
     }
-
 
     private DealTypeDTO mapTypeToDTO(DealType type) {
         if (type == null) {
@@ -60,16 +69,11 @@ public class DealMappingService {
 
     private DealSumDTO mapMainSumToDTO(Deal deal) {
         if (deal.getSums() == null) {
-            return dealSumRepository.findMainSumByDealId(deal.getId())
-                    .map(sum -> DealSumDTO.builder()
-                            .value(sum.getSum())
-                            .currency(sum.getCurrencyId())
-                            .build())
-                    .orElse(null);
+            return null;
         }
 
         return deal.getSums().stream()
-                .filter(sum -> Boolean.TRUE.equals(sum.getIsMain()) && Boolean.TRUE.equals(sum.getIsActive()))
+                .filter(sum -> Boolean.TRUE.equals(sum.getIsMain()))
                 .findFirst()
                 .map(sum -> DealSumDTO.builder()
                         .value(sum.getSum())
@@ -78,7 +82,7 @@ public class DealMappingService {
                 .orElse(null);
     }
 
-    private List<ContractorDTO> mapContractorsToDTO(List<DealContractor> contractors) {
+    private List<DealContractorDTO> mapContractorsToDTO(List<DealContractor> contractors) {
         if (contractors == null) {
             return null;
         }
@@ -89,8 +93,8 @@ public class DealMappingService {
                 .collect(Collectors.toList());
     }
 
-    private ContractorDTO mapContractorToDTO(DealContractor contractor) {
-        return ContractorDTO.builder()
+    private DealContractorDTO mapContractorToDTO(DealContractor contractor) {
+        return DealContractorDTO.builder()
                 .id(contractor.getId())
                 .contractorId(contractor.getContractorId())
                 .name(contractor.getName())
@@ -113,4 +117,6 @@ public class DealMappingService {
                         .build())
                 .collect(Collectors.toList());
     }
+
 }
+

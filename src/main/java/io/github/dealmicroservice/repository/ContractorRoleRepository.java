@@ -10,4 +10,5 @@ public interface ContractorRoleRepository extends JpaRepository<ContractorRole, 
 
     @Query("SELECT cr FROM ContractorRole cr WHERE cr.id = :s AND cr.isActive = true")
     Optional<ContractorRole> findByIdIsActive(String s);
+
 }

@@ -61,7 +61,7 @@ public class DealSearchDTO {
 
     @Min(value = 1, message = "Размер страницы должен быть больше 0")
     @Max(value = 100, message = "Размер страницы не может быть больше 100")
-    private Integer size = 20;
+    private Integer size = 10;
 
     @Pattern(regexp = "^(id|description|agreementNumber|agreementDate|availabilityDate|type|status|closeDt)$",
             message = "Недопустимое поле для сортировки")
@@ -69,4 +69,6 @@ public class DealSearchDTO {
 
     @Pattern(regexp = "^(ASC|DESC)$", message = "Направление сортировки должно быть ASC или DESC")
     private String sortDirection = "ASC";
+
 }
+

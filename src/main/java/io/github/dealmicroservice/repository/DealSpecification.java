@@ -1,34 +1,38 @@
 package io.github.dealmicroservice.repository;
 
-
 import io.github.dealmicroservice.model.dto.DealSearchDTO;
-import io.github.dealmicroservice.model.entity.*;
-import jakarta.persistence.criteria.*;
+import io.github.dealmicroservice.model.entity.Deal;
+import io.github.dealmicroservice.model.entity.DealContractor;
+import io.github.dealmicroservice.model.entity.DealSum;
+import io.github.dealmicroservice.model.entity.ContractorToRole;
+import io.github.dealmicroservice.model.entity.ContractorRole;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DealSpecification {
+@UtilityClass
+public final class DealSpecification {
 
     public static Specification<Deal> buildSpecification(DealSearchDTO request) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Всегда фильтруем только активные записи
             predicates.add(criteriaBuilder.isTrue(root.get("isActive")));
 
-            // Фильтр по ID сделки
             if (request.getDealId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("id"), request.getDealId()));
             }
 
-            // Фильтр по описанию (точное совпадение)
             if (request.getDescription() != null && !request.getDescription().trim().isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("description"), request.getDescription()));
             }
 
-            // Фильтр по номеру договора (частичное совпадение)
             if (request.getAgreementNumber() != null && !request.getAgreementNumber().trim().isEmpty()) {
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("agreementNumber")),
@@ -36,7 +40,6 @@ public class DealSpecification {
                 ));
             }
 
-            // Фильтр по дате договора (диапазон)
             if (request.getAgreementDateFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("agreementDate"), request.getAgreementDateFrom()));
             }
@@ -44,7 +47,6 @@ public class DealSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("agreementDate"), request.getAgreementDateTo()));
             }
 
-            // Фильтр по дате доступности (диапазон)
             if (request.getAvailabilityDateFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("availabilityDate"), request.getAvailabilityDateFrom()));
             }
@@ -52,17 +54,14 @@ public class DealSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("availabilityDate"), request.getAvailabilityDateTo()));
             }
 
-            // Фильтр по типу сделки
             if (request.getType() != null && !request.getType().isEmpty()) {
                 predicates.add(root.get("typeId").in(request.getType()));
             }
 
-            // Фильтр по статусу сделки
             if (request.getStatus() != null && !request.getStatus().isEmpty()) {
                 predicates.add(root.get("statusId").in(request.getStatus()));
             }
 
-            // Фильтр по дате закрытия (диапазон)
             if (request.getCloseDtFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("closeDt"), request.getCloseDtFrom()));
             }
@@ -70,7 +69,6 @@ public class DealSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("closeDt"), request.getCloseDtTo()));
             }
 
-            // Фильтр по заемщикам
             if (request.getBorrowerSearch() != null && !request.getBorrowerSearch().trim().isEmpty()) {
                 Subquery<Long> borrowerSubquery = query.subquery(Long.class);
                 Root<DealContractor> contractorRoot = borrowerSubquery.from(DealContractor.class);
@@ -98,7 +96,6 @@ public class DealSpecification {
                 predicates.add(criteriaBuilder.exists(borrowerSubquery));
             }
 
-            // Фильтр по поручителям
             if (request.getWarrantySearch() != null && !request.getWarrantySearch().trim().isEmpty()) {
                 Subquery<Long> warrantySubquery = query.subquery(Long.class);
                 Root<DealContractor> contractorRoot = warrantySubquery.from(DealContractor.class);
@@ -126,7 +123,6 @@ public class DealSpecification {
                 predicates.add(criteriaBuilder.exists(warrantySubquery));
             }
 
-            // Фильтр по сумме сделки
             if (request.getSum() != null) {
                 Subquery<Long> sumSubquery = query.subquery(Long.class);
                 Root<DealSum> sumRoot = sumSubquery.from(DealSum.class);
@@ -153,4 +149,5 @@ public class DealSpecification {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
 }
