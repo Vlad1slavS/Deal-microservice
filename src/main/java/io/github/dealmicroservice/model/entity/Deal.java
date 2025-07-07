@@ -24,6 +24,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+
+/**
+ * Сущность сделки
+ */
 @Entity
 @Table(name = "deal")
 @Data
@@ -70,7 +74,7 @@ public class Deal {
     @Column(name = "agreement_date")
     private LocalDate agreementDate;
 
-    @Column(name = "agreement_start_dt")
+    @Column(name = "agreement_start_date")
     private LocalDateTime agreementStartDate;
 
     @Column(name = "availability_date")

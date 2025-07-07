@@ -20,6 +20,9 @@ import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Сервис для экспорта данных сделок в формат Excel.
+ */
 @Service
 @Slf4j
 public class ExcelService {
@@ -30,8 +33,13 @@ public class ExcelService {
         this.dealService = dealService;
     }
 
+    /**
+     * Экспортирует сделки в Excel файл по заданным критериям поиска.
+     * Создает XLSX файл со всей информацией о сделках
+     * @param request DTO с критериями поиска сделок для экспорта
+     * @return путь к созданному файлу
+     */
     public String exportDealsToExcel(DealSearchDTO request) throws IOException {
-        log.info("Exporting deals to Excel with criteria: {}", request);
 
         request.setSize(10000);
         List<DealDTO> deals = dealService.searchDeals(request).getContent();
@@ -40,7 +48,6 @@ public class ExcelService {
         Path exportPath = Paths.get(exportDir);
         if (!Files.exists(exportPath)) {
             Files.createDirectories(exportPath);
-            log.info("Created export directory: {}", exportPath.toAbsolutePath());
         }
 
         String fileName = "deals_page_export.xlsx";
@@ -104,8 +111,6 @@ public class ExcelService {
             }
 
             workbook.write(fileOut);
-
-            log.info("Excel file successfully saved to: {}", filePath.toAbsolutePath());
 
             return filePath.toAbsolutePath().toString();
         }

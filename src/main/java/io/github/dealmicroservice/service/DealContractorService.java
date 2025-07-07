@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Сервис для управления контрагентами в сделках.
+ */
 @Service
 @Slf4j
 public class DealContractorService {
@@ -40,6 +43,14 @@ public class DealContractorService {
         this.mappingService = mappingService;
     }
 
+    /**
+     * Сохраняет или обновляет контрагента сделки.
+     * Если указан текущий контрагент как основной, предыдущий основной контрагент становится неосновным.
+     *
+     * @param request DTO с данными контрагента
+     * @return DTO сохраненного контрагента
+     * @throws EntityNotFoundException если сделка или контрагент не найдены
+     */
     @Transactional
     public DealContractorDTO saveDealContractor(DealContractorDTO request) {
         log.info("Saving deal contractor: {}", request);
@@ -80,6 +91,12 @@ public class DealContractorService {
         return mappingService.mapToDTO(savedContractor);
     }
 
+    /**
+     * Помечает контрагента сделки как неактивного
+     *
+     * @param contractorId идентификатор контрагента
+     * @throws EntityNotFoundException если контрагент не найден
+     */
     @Transactional
     public void deleteDealContractor(UUID contractorId) {
         log.info("Deleting deal contractor: {}", contractorId);
@@ -93,9 +110,16 @@ public class DealContractorService {
         dealContractorRepository.save(contractor);
     }
 
+    /**
+     * Добавляет роль контрагенту в сделке
+     *
+     * @param contractorId идентификатор контрагента
+     * @param roleId идентификатор роли
+     * @return DTO с информацией о назначенной роли
+     * @throws EntityNotFoundException если контрагент или роль не найдены
+     */
     @Transactional
     public ContractorToRoleDTO addRoleToContractor(UUID contractorId, String roleId) {
-
         log.info("Adding role to contractor id: {}", contractorId);
 
         dealContractorRepository.findByIdActive(contractorId)
@@ -117,18 +141,22 @@ public class DealContractorService {
                 .build();
     }
 
+    /**
+     * Удаляет роль у контрагента в сделке
+     *
+     * @param contractorId идентификатор контрагента
+     * @param roleId идентификатор роли
+     * @throws EntityNotFoundException если связь контрагента с ролью не найдена
+     */
     @Transactional
     public void deleteRoleFromContractor(UUID contractorId, String roleId) {
-
         log.info("Deleting role from contractor id: {}", contractorId);
 
         ContractorToRole contractorToRole = contractorToRoleRepository
                 .findByContractorIdAndRoleIdAndIsActiveTrue(contractorId, roleId)
-                .orElseThrow(() -> new RuntimeException("Contractor role assignment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Contractor role assignment not found"));
 
         contractorToRole.setIsActive(false);
         contractorToRoleRepository.save(contractorToRole);
-
     }
-
 }

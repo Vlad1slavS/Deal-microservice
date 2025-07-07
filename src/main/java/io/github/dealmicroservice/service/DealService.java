@@ -9,7 +9,6 @@ import io.github.dealmicroservice.model.dto.DealSaveDTO;
 import io.github.dealmicroservice.repository.DealRepository;
 import io.github.dealmicroservice.repository.DealStatusRepository;
 import io.github.dealmicroservice.repository.DealTypeRepository;
-import io.github.dealmicroservice.repository.ContractorToRoleRepository;
 import io.github.dealmicroservice.repository.DealSpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +31,9 @@ import java.util.stream.Collectors;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
+/**
+ * Сервис для управления сделками
+ */
 @Service
 @Slf4j
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
@@ -41,24 +43,29 @@ public class DealService {
     private final DealStatusRepository dealStatusRepository;
     private final DealMapping mappingService;
     private final DealTypeRepository dealTypeRepository;
-    private final ContractorToRoleRepository contractorToRoleRepository;
 
     public DealService(DealRepository dealRepository,
                       DealStatusRepository dealStatusRepository,
                       DealMapping mappingService,
-                      DealTypeRepository dealTypeRepository,
-                      ContractorToRoleRepository contractorToRoleRepository) {
+                      DealTypeRepository dealTypeRepository) {
         this.dealRepository = dealRepository;
         this.dealStatusRepository = dealStatusRepository;
         this.mappingService = mappingService;
         this.dealTypeRepository = dealTypeRepository;
-        this.contractorToRoleRepository = contractorToRoleRepository;
     }
 
+    /**
+     * Сохраняет новую или обновляет существующую сделку.
+     * Для новой сделки устанавливается статус "DRAFT".
+     *
+     * @param request DTO с данными для сохранения сделки
+     * @return DTO сохраненной сделки
+     * @throws EntityNotFoundException если сделка, статус или тип сделки не найдены
+     */
     @Transactional
     public DealDTO saveDeal(DealSaveDTO request) {
 
-        log.info("Сохранение сделки {}", request);
+        log.info("Save deal {}", request);
 
         Deal deal;
 
@@ -86,12 +93,20 @@ public class DealService {
 
         deal = dealRepository.save(deal);
 
-        log.info("Сделка {} сохранена", deal.getId());
+        log.info("Deal {} saved", deal.getId());
 
         return getDealById(deal.getId());
 
     }
 
+    /**
+     * Изменяет статус сделки.
+     *
+     * @param id       идентификатор сделки
+     * @param statusId идентификатор нового статуса
+     * @return DTO обновленной сделки
+     * @throws EntityNotFoundException если сделка или статус не найдены
+     */
     @Transactional
     public DealDTO changeStatus(UUID id, String statusId) {
 
@@ -112,6 +127,13 @@ public class DealService {
 
     }
 
+    /**
+     * Получает сделку по идентификатору со всеми связанными данными.
+     *
+     * @param id идентификатор сделки
+     * @return DTO сделки с полной информацией
+     * @throws EntityNotFoundException если сделка не найдена
+     */
     @Transactional
     public DealDTO getDealById(UUID id) {
         log.info("Getting deal by id: {}", id);
@@ -128,6 +150,12 @@ public class DealService {
         return mappingService.mapToDTO(deal);
     }
 
+    /**
+     * Осуществляет поиск сделок по заданным критериям с пагинацией и сортировкой.
+     *
+     * @param request DTO с параметрами поиска, пагинации и сортировки
+     * @return страница с результатами поиска
+     */
     @Transactional
     public Page<DealDTO> searchDeals(DealSearchDTO request) {
 
@@ -161,6 +189,9 @@ public class DealService {
 
     }
 
+    /**
+     * Загружает полную информацию о сделках, суммы и контрагентов.
+     */
     private void loadFullDealInformation(List<Deal> deals, Set<UUID> dealIds) {
 
         Map<UUID, Deal> dealMap = deals.stream()

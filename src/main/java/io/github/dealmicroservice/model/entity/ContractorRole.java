@@ -8,6 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
+/**
+ * Сущность роли контрагента
+ */
 @Entity
 @Table(name = "contractor_role")
 @Data

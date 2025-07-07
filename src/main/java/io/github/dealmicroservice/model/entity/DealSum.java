@@ -15,6 +15,10 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+
+/**
+ * Сущность суммы сделки
+ */
 @Entity
 @Table(name = "deal_sum")
 @Data

@@ -8,6 +8,9 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Сущность уникального идентификатора для связи между контрагентом и ролью
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Embeddable

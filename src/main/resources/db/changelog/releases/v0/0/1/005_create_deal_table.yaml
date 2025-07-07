@@ -22,7 +22,7 @@ databaseChangeLog:
                   name: agreement_date
                   type: date
               - column:
-                  name: agreement_start_dt
+                  name: agreement_start_date
                   type: timestamp
               - column:
                   name: availability_date

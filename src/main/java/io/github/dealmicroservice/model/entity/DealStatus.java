@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Сущность статуса сделки
+ */
 @Entity
 @Table(name = "deal_status")
 @Data

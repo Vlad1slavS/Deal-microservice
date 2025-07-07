@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Сущность валюты
+ */
 @Entity
 @Table(name = "currency")
 @Data

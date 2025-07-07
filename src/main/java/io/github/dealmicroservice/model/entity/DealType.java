@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Сущность типа сделки
+ */
 @Entity
 @Table(name = "deal_type")
 @Data

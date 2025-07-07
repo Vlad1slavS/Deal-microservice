@@ -20,6 +20,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+
+/**
+ * Сущность контрагента сделки
+ */
 @Entity
 @Table(name = "deal_contractor")
 @Data

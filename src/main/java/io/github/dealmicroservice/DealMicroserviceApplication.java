@@ -5,6 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.time.LocalDateTime;
 
+/**
+ * Главный класс приложения Deal Microservice.
+ * @author Владислав Степанов
+ */
 @SpringBootApplication
 public class DealMicroserviceApplication {
 

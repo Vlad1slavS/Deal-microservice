@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+/**
+ * Сущность для хранения связи между контрагентом и ролью.
+ */
 @Entity
 @Table(name = "contractor_to_role")
 @Data
