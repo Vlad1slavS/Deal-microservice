@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.dealmicroservice.exception.GlobalExceptionHandler;
 import io.github.dealmicroservice.model.dto.DealContractorDTO;
 import io.github.dealmicroservice.service.DealContractorService;
+import io.github.dealmicroservice.service.DealContractorServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

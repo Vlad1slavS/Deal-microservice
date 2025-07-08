@@ -11,8 +11,6 @@ import java.util.UUID;
 @Repository
 public interface ContractorToRoleRepository extends JpaRepository<ContractorToRole, UUID> {
 
-    @Query("SELECT ctr FROM ContractorToRole ctr " +
-            "WHERE ctr.contractorId = :contractorId AND ctr.roleId = :roleId AND ctr.isActive = true")
     Optional<ContractorToRole> findByContractorIdAndRoleIdAndIsActiveTrue(UUID contractorId, String roleId);
 
 }

@@ -2,6 +2,7 @@ package io.github.dealmicroservice.controller;
 
 import io.github.dealmicroservice.model.dto.DealContractorDTO;
 import io.github.dealmicroservice.service.DealContractorService;
+import io.github.dealmicroservice.service.DealContractorServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -18,19 +18,15 @@ import java.util.UUID;
 @Repository
 public interface DealRepository extends JpaRepository<Deal, UUID>, JpaSpecificationExecutor<Deal> {
 
-    @Query("SELECT d FROM Deal d WHERE d.id = :id AND d.isActive = true")
-    Optional<Deal> findActiveById(UUID id);
+    Optional<Deal> findByIdAndIsActiveTrue(UUID id);
 
     @EntityGraph(value = "Deal.withTypeAndStatus")
-    @Query("SELECT d FROM Deal d WHERE d.id = :id AND d.isActive = true")
-    Optional<Deal> findByIdWithBasicDetails(UUID id);
+    Optional<Deal> findActiveByIdWithBasicDetails(UUID id);
 
     @EntityGraph(value = "Deal.withContractors")
-    @Query("SELECT d FROM Deal d WHERE d.id = :id")
     Optional<Deal> findByIdWithContractors(UUID id);
 
     @EntityGraph(value = "Deal.withSums")
-    @Query("SELECT d FROM Deal d WHERE d.id = :id")
     Optional<Deal> findByIdWithSums(UUID id);
 
     @EntityGraph(value = "Deal.withTypeAndStatus")

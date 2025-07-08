@@ -3,7 +3,6 @@ package io.github.dealmicroservice.itegration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.dealmicroservice.model.dto.DealSearchDTO;
 import io.github.dealmicroservice.model.entity.Deal;
-import io.github.dealmicroservice.model.entity.DealType;
 import io.github.dealmicroservice.repository.DealRepository;
 import io.github.dealmicroservice.repository.DealSpecification;
 import org.assertj.core.api.Assertions;
@@ -98,7 +97,7 @@ public class DealIntegrationTest {
 
     @Test
     void findByIdWithDetails_ExistingDeal() {
-        Optional<Deal> deal = dealRepository.findByIdWithBasicDetails(testDealId);
+        Optional<Deal> deal = dealRepository.findActiveByIdWithBasicDetails(testDealId);
 
         assertThat(deal).isPresent();
 
@@ -118,7 +117,7 @@ public class DealIntegrationTest {
 
         UUID not_existing_deal_id = UUID.randomUUID();
 
-        Optional<Deal> result = dealRepository.findByIdWithBasicDetails(not_existing_deal_id);
+        Optional<Deal> result = dealRepository.findActiveByIdWithBasicDetails(not_existing_deal_id);
 
         assertThat(result).isEmpty();
 

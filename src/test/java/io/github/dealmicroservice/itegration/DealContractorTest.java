@@ -89,7 +89,7 @@ public class DealContractorTest {
     @Test
     void findByIdWithDetails_ExistingContractor() {
 
-        Optional<DealContractor> contractor = dealContractorRepository.findByIdActive(testContractorId);
+        Optional<DealContractor> contractor = dealContractorRepository.findByIdAndIsActiveTrue(testContractorId);
 
         assertThat(contractor).isPresent();
 
@@ -106,7 +106,7 @@ public class DealContractorTest {
 
         UUID not_existing_deal_id = UUID.randomUUID();
 
-        Optional<DealContractor> result = dealContractorRepository.findByIdActive(not_existing_deal_id);
+        Optional<DealContractor> result = dealContractorRepository.findByIdAndIsActiveTrue(not_existing_deal_id);
 
         assertThat(result).isEmpty();
 
