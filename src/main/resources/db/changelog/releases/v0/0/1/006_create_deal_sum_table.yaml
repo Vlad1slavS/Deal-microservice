@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-deal-sum-table
+      author: Vladislav Stepanov
+      changes:
+        - createTable:
+            tableName: deal_sum
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: deal_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sum
+                  type: numeric(100,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_id
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_main
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: false
+              - column:
+                  name: is_active
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true
+
+        - addForeignKeyConstraint:
+            baseTableName: deal_sum
+            baseColumnNames: deal_id
+            referencedTableName: deal
+            referencedColumnNames: id
+            constraintName: fk_deal_sum_deal
+
+        - addForeignKeyConstraint:
+            baseTableName: deal_sum
+            baseColumnNames: currency_id
+            referencedTableName: currency
+            referencedColumnNames: id
+            constraintName: fk_deal_sum_currency
+
+        - addUniqueConstraint:
+            tableName: deal_sum
+            columnNames: deal_id, is_main
+            constraintName: uq_deal_sum_main
+
+        - createIndex:
+            indexName: idx_deal_sum_deal_id
+            tableName: deal_sum
+            columns:
+              - column:
+                  name: deal_id
+
+        - createIndex:
+            indexName: idx_deal_sum_currency_id
+            tableName: deal_sum
+            columns:
+              - column:
+                  name: currency_id
+
+

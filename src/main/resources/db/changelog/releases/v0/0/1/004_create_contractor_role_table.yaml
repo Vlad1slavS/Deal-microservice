@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-deal-contractor-role-table
+      author: Vladislav Stepanov
+      changes:
+        - createTable:
+            tableName: contractor_role
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(30)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true

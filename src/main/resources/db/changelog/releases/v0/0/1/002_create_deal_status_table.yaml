@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-deal-status-table
+      author: Vladislav Stepanov
+      changes:
+        - createTable:
+            tableName: deal_status
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(30)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true

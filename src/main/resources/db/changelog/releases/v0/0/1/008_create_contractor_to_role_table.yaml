@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-contractor-to-role-table
+      author: liquibase
+      changes:
+        - createTable:
+            tableName: contractor_to_role
+            columns:
+              - column:
+                  name: contractor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: contractor_to_role
+            columnNames: contractor_id, role_id
+            constraintName: pk_contractor_to_role
+
+        - addForeignKeyConstraint:
+            baseColumnNames: contractor_id
+            baseTableName: contractor_to_role
+            constraintName: fk_contractor_to_role_contractor
+            referencedColumnNames: id
+            referencedTableName: deal_contractor
+
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: contractor_to_role
+            constraintName: fk_contractor_to_role_role
+            referencedColumnNames: id
+            referencedTableName: contractor_role
+
+
