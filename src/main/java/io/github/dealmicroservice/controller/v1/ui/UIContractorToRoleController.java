@@ -1,4 +1,4 @@
-package io.github.dealmicroservice.controller;
+package io.github.dealmicroservice.controller.v1.ui;
 
 import io.github.dealmicroservice.model.dto.ContractorToRoleDTO;
 import io.github.dealmicroservice.service.DealContractorService;
@@ -20,20 +20,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/contractor-to-role")
+@RequestMapping("api/v1/ui/contractor-to-role")
 @Slf4j
-@Tag(name = "ContractorToRole", description = "API для работы с ролями контрагентов сделок")
-public class ContractorToRoleController {
+@Tag(name = "UI ContractorToRole", description = " Защищенный API для работы с ролями контрагентов сделок")
+public class UIContractorToRoleController {
 
     private final DealContractorService dealContractorService;
 
-    public ContractorToRoleController(DealContractorService dealContractorService) {
+    public UIContractorToRoleController(DealContractorService dealContractorService) {
         this.dealContractorService = dealContractorService;
     }
 
     @Operation(
             summary = "Добавить роль контрагенту сделки",
-            description = "Добавляет указанную роль для контрагента по его идентификатору"
+            description = """
+                    Добавить роль контрагенту сделки с учетом ролевых ограничений:
+                    
+                    **Доступ по ролям:**
+                    - **DEAL_SUPERUSER** - может добавлять роли контрагентам сделок
+                    - **SUPERUSER** - может добавлять роли контрагентам сделок
+                    
+                    """,
+            security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -94,7 +102,35 @@ public class ContractorToRoleController {
                                 """
                             )
                     )
-            )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Нет прав для добавления роли контрагенту сделки",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "error": "Нет прав доступа",
+                                        "message": "Access denied"
+                                    }
+                                """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Не авторизован, требуется JWT токен",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "error": "Unauthorized",
+                                        "message": "JWT token is required"
+                                    }
+                                    """
+                            )
+                    )
+            ),
     })
     @PostMapping("/add")
     public ResponseEntity<ContractorToRoleDTO> addContractorRole(
@@ -117,7 +153,16 @@ public class ContractorToRoleController {
 
     }
 
-    @Operation(summary = "Удалить роль у контрагента сделки")
+    @Operation(summary = "Удалить роль у контрагента сделки",
+    security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
+            description = """
+                    Удалить роль у контрагента сделки с учетом ролевых ограничений:
+                    
+                    **Доступ по ролям:**
+                    - **DEAL_SUPERUSER** - может удалять роли контрагентам сделок
+                    - **SUPERUSER** - может удалять роли контрагентам сделок
+                    
+                    """)
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -132,6 +177,34 @@ public class ContractorToRoleController {
                                     {
                                         "error": "Сущность не найдена",
                                         "message": "Contractor role assignment not found",
+                                    }
+                                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Нет прав для удаления роли контрагенту сделки",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "error": "Нет прав доступа",
+                                        "message": "Access denied"
+                                    }
+                                """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Не авторизован, требуется JWT токен",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "error": "Unauthorized",
+                                        "message": "JWT token is required"
                                     }
                                     """
                             )

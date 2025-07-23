@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Главный класс приложения Deal Microservice.
- * @author Владислав Степанов
+ * @author Vlad1slavS
  */
 @SpringBootApplication
 public class DealMicroserviceApplication {
