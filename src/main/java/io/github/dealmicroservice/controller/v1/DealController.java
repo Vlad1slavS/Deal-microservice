@@ -1,4 +1,4 @@
-package io.github.dealmicroservice.controller;
+package io.github.dealmicroservice.controller.v1;
 
 import io.github.dealmicroservice.model.dto.DealDTO;
 import io.github.dealmicroservice.model.dto.DealSaveDTO;
@@ -34,7 +34,7 @@ import java.util.UUID;
 @RequestMapping("api/v1/deal")
 @Slf4j
 @Tag(name = "Deals", description = "API для управления сделками")
-public class DealController {
+public class DealController implements DealControllerContract {
 
     private final DealService dealService;
     private final ExcelService excelService;

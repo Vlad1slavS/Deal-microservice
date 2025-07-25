@@ -15,6 +15,7 @@ import java.util.Map;
 
 /**
  * Глобальный обработчик исключений
+ * @author Vlad1slavS
  */
 @ControllerAdvice
 @Slf4j
@@ -75,20 +76,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
     }
 
-    /**
-     * Обработка всех остальных исключений
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> otherExceptions(
-            Exception ex, WebRequest request) {
-
-        Map<String, Object> errorBody = new HashMap<>();
-        errorBody.put("error", "Внутренняя ошибка сервера");
-        errorBody.put("typeError", ex.getClass().getSimpleName());
-        errorBody.put("message", ex.getMessage());
-        errorBody.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
-    }
 
 }

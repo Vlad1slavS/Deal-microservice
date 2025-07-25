@@ -21,13 +21,16 @@ public interface DealRepository extends JpaRepository<Deal, UUID>, JpaSpecificat
     Optional<Deal> findByIdAndIsActiveTrue(UUID id);
 
     @EntityGraph(value = "Deal.withTypeAndStatus")
-    Optional<Deal> findActiveByIdWithBasicDetails(UUID id);
+    @Query("SELECT d FROM Deal d WHERE d.id = :id AND d.isActive = true")
+    Optional<Deal> findActiveByDealIdWithBasicDetails(UUID id);
 
     @EntityGraph(value = "Deal.withContractors")
-    Optional<Deal> findByIdWithContractors(UUID id);
+    @Query("SELECT d FROM Deal d WHERE d.id = :id AND d.isActive = true")
+    Optional<Deal> findByDealIdWithContractors(UUID id);
 
     @EntityGraph(value = "Deal.withSums")
-    Optional<Deal> findByIdWithSums(UUID id);
+    @Query("SELECT d FROM Deal d WHERE d.id = :id AND d.isActive = true")
+    Optional<Deal> findByDealIdWithSums(UUID id);
 
     @EntityGraph(value = "Deal.withTypeAndStatus")
     Page<Deal> findAll(Specification<Deal> specification, Pageable pageable);
