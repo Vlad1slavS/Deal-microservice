@@ -232,6 +232,7 @@ public class UIDealContractorController {
             )
 
     })
+    @PreAuthorize("hasAnyRole('DEAL_SUPERUSER', 'SUPERUSER')")
     @DeleteMapping("/deal-contractor/delete")
     public ResponseEntity<Void> deleteContractor(@RequestParam UUID contractorId) {
         log.info("Received request to delete deal contractor with id: {}", contractorId);
