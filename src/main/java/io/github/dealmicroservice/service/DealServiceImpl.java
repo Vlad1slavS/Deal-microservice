@@ -1,5 +1,6 @@
 package io.github.dealmicroservice.service;
 
+import io.github.auditlib.annotation.AuditLog;
 import io.github.dealmicroservice.exception.EntityNotFoundException;
 import io.github.dealmicroservice.mapping.DealMapping;
 import io.github.dealmicroservice.model.dto.DealDTO;
@@ -10,7 +11,8 @@ import io.github.dealmicroservice.repository.DealRepository;
 import io.github.dealmicroservice.repository.DealStatusRepository;
 import io.github.dealmicroservice.repository.DealTypeRepository;
 import io.github.dealmicroservice.repository.DealSpecification;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +37,10 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
  * Сервис для управления сделками
  */
 @Service
-@Slf4j
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class DealServiceImpl implements DealService {
+
+    Logger log = LogManager.getLogger(DealServiceImpl.class);
 
     private final DealRepository dealRepository;
     private final DealStatusRepository dealStatusRepository;
@@ -57,12 +60,14 @@ public class DealServiceImpl implements DealService {
     /**
      * Сохраняет новую или обновляет существующую сделку.
      * Для новой сделки устанавливается статус "DRAFT".
+     * @AuditLog - аннотация для логирования методов и http запросов
      *
      * @param request DTO с данными для сохранения сделки
      * @return DTO сохраненной сделки
      * @throws EntityNotFoundException если сделка, статус или тип сделки не найдены
      */
     @Transactional
+    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
     public DealDTO saveDeal(DealSaveDTO request) {
 
         log.info("Save deal {}", request);
@@ -129,22 +134,24 @@ public class DealServiceImpl implements DealService {
 
     /**
      * Получает сделку по идентификатору со всеми связанными данными.
+     * @AuditLog - аннотация для логирования методов и http запросов
      *
      * @param id идентификатор сделки
      * @return DTO сделки с полной информацией
      * @throws EntityNotFoundException если сделка не найдена
      */
     @Transactional
+    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
     public DealDTO getDealById(UUID id) {
         log.info("Getting deal by id: {}", id);
 
-        Deal deal = dealRepository.findActiveByIdWithBasicDetails(id)
+        Deal deal = dealRepository.findActiveByDealIdWithBasicDetails(id)
                 .orElseThrow(() -> new EntityNotFoundException("Deal not found with id: " + id));
 
-        dealRepository.findByIdWithContractors(id);
+        dealRepository.findByDealIdWithContractors(id);
 
         if (deal != null) {
-            dealRepository.findByIdWithSums(id);
+            dealRepository.findByDealIdWithSums(id);
         }
 
         return mappingService.mapToDTO(deal);
