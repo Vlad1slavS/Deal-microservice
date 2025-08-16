@@ -2,6 +2,7 @@ package io.github.dealmicroservice.service;
 
 import io.github.dealmicroservice.exception.EntityNotFoundException;
 import io.github.dealmicroservice.mapping.ContractorMapping;
+import io.github.dealmicroservice.model.dto.ContractorMessageDTO;
 import io.github.dealmicroservice.model.dto.ContractorToRoleDTO;
 import io.github.dealmicroservice.model.dto.DealContractorDTO;
 import io.github.dealmicroservice.model.entity.ContractorToRole;
@@ -10,7 +11,8 @@ import io.github.dealmicroservice.repository.ContractorRoleRepository;
 import io.github.dealmicroservice.repository.ContractorToRoleRepository;
 import io.github.dealmicroservice.repository.DealContractorRepository;
 import io.github.dealmicroservice.repository.DealRepository;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +24,9 @@ import java.util.UUID;
  * Сервис для управления контрагентами в сделках.
  */
 @Service
-@Slf4j
 public class DealContractorServiceImpl implements DealContractorService {
+
+    private final Logger log = LogManager.getLogger(DealContractorServiceImpl.class);
 
     private final DealContractorRepository dealContractorRepository;
     private final ContractorToRoleRepository contractorToRoleRepository;
@@ -158,6 +161,32 @@ public class DealContractorServiceImpl implements DealContractorService {
 
         contractorToRole.setIsActive(false);
         contractorToRoleRepository.save(contractorToRole);
+    }
+
+    @Transactional
+    public void updateContractorInDeals(ContractorMessageDTO contractorMessage) {
+
+        log.debug("Updating contractor information in deals: contractorId={}", contractorMessage.getId());
+
+        try {
+            int updatedRecords = dealContractorRepository.updateContractorInfo(
+                    contractorMessage.getId(),
+                    contractorMessage.getName(),
+                    contractorMessage.getInn()
+            );
+
+            log.debug("Updated contractor information in {} deal_contractor records: contractorId={}",
+                    updatedRecords, contractorMessage.getId());
+
+            if (updatedRecords == 0) {
+                log.warn("No deal_contractor records found for contractorId={}", contractorMessage.getId());
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to update contractor information in deals: contractorId={}",
+                    contractorMessage.getId(), e);
+            throw new RuntimeException("Failed to update contractor in deals", e);
+        }
     }
 
 }
