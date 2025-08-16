@@ -3,7 +3,6 @@ package io.github.dealmicroservice.service;
 import io.github.dealmicroservice.model.dto.DealContractorDTO;
 import io.github.dealmicroservice.model.dto.DealDTO;
 import io.github.dealmicroservice.model.dto.DealSearchDTO;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -24,7 +23,6 @@ import java.util.List;
  * Сервис для экспорта данных сделок в формат Excel.
  */
 @Service
-@Slf4j
 public class ExcelService {
 
     private final DealService dealService;

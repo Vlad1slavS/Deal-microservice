@@ -1,10 +1,10 @@
 package io.github.dealmicroservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.dealmicroservice.controller.v1.ContractorToRoleController;
 import io.github.dealmicroservice.exception.GlobalExceptionHandler;
 import io.github.dealmicroservice.model.dto.ContractorToRoleDTO;
 import io.github.dealmicroservice.service.DealContractorService;
-import io.github.dealmicroservice.service.DealContractorServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

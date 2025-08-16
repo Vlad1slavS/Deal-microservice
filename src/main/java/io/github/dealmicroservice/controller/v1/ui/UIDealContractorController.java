@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,9 +26,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/ui/deal-contractor")
-@Slf4j
 @Tag(name = "UI DealContractor", description = "Защищенное API для работы с контрагентами сделок")
 public class UIDealContractorController {
+
+    private final Logger log = LogManager.getLogger(UIDealContractorController.class);
 
     private final DealContractorService dealContractorService;
 
@@ -38,11 +40,9 @@ public class UIDealContractorController {
     @Operation(summary = "Создать или обновить контрагента",
             description = """
                     Создание или обновление контрагента с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может создавать/обновлять контрагента
                     - **SUPERUSER** - может создавать/обновлять контрагента
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
@@ -173,11 +173,9 @@ public class UIDealContractorController {
             summary = "Удалить контрагента сделки",
             description = """
                     Удаление контрагента сделки по идентификатору.
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может удалять контрагентов сделок
                     - **SUPERUSER** - может удалять контрагентов сделок
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {

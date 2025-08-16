@@ -15,7 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,9 +33,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/deal")
-@Slf4j
 @Tag(name = "Deals", description = "API для управления сделками")
 public class DealController implements DealControllerContract {
+
+    private final Logger log = LogManager.getLogger(DealController.class);
 
     private final DealService dealService;
     private final ExcelService excelService;

@@ -97,14 +97,14 @@ public class DealIntegrationTest {
 
     @Test
     void findByIdWithDetails_ExistingDeal() {
-        Optional<Deal> deal = dealRepository.findActiveByIdWithBasicDetails(testDealId);
+        Optional<Deal> deal = dealRepository.findActiveByDealIdWithBasicDetails(testDealId);
 
         assertThat(deal).isPresent();
 
         Deal result = deal.get();
 
-        dealRepository.findByIdWithSums(testDealId);
-        dealRepository.findByIdWithContractors(testDealId);
+        dealRepository.findByDealIdWithSums(testDealId);
+        dealRepository.findByDealIdWithContractors(testDealId);
 
         assertThat(result.getId()).isEqualTo(testDealId);
         assertThat(result.getDescription()).isEqualTo("Deal for sale car");
@@ -117,7 +117,7 @@ public class DealIntegrationTest {
 
         UUID not_existing_deal_id = UUID.randomUUID();
 
-        Optional<Deal> result = dealRepository.findActiveByIdWithBasicDetails(not_existing_deal_id);
+        Optional<Deal> result = dealRepository.findActiveByDealIdWithBasicDetails(not_existing_deal_id);
 
         assertThat(result).isEmpty();
 

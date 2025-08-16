@@ -1,6 +1,5 @@
 package io.github.dealmicroservice.exception;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -18,7 +17,6 @@ import java.util.Map;
  * @author Vlad1slavS
  */
 @ControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
 
     /**
@@ -75,6 +73,5 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
     }
-
 
 }

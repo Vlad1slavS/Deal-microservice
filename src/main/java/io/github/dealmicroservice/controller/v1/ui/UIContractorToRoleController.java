@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/ui/contractor-to-role")
-@Slf4j
 @Tag(name = "UI ContractorToRole", description = " Защищенный API для работы с ролями контрагентов сделок")
 public class UIContractorToRoleController {
+
+    private final Logger log = LogManager.getLogger(UIContractorToRoleController.class);
 
     private final DealContractorService dealContractorService;
 
@@ -35,11 +37,9 @@ public class UIContractorToRoleController {
             summary = "Добавить роль контрагенту сделки",
             description = """
                     Добавить роль контрагенту сделки с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может добавлять роли контрагентам сделок
                     - **SUPERUSER** - может добавлять роли контрагентам сделок
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     )
@@ -157,11 +157,9 @@ public class UIContractorToRoleController {
     security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
             description = """
                     Удалить роль у контрагента сделки с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может удалять роли контрагентам сделок
                     - **SUPERUSER** - может удалять роли контрагентам сделок
-                    
                     """)
     @ApiResponses(value = {
             @ApiResponse(

@@ -1,6 +1,6 @@
 package io.github.dealmicroservice.service;
 
-import io.github.auditlib.annotation.AuditLog;
+//import io.github.auditlib.annotation.AuditLog;
 import io.github.dealmicroservice.exception.EntityNotFoundException;
 import io.github.dealmicroservice.mapping.DealMapping;
 import io.github.dealmicroservice.model.dto.DealDTO;
@@ -40,7 +40,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class DealServiceImpl implements DealService {
 
-    Logger log = LogManager.getLogger(DealServiceImpl.class);
+    private final Logger log = LogManager.getLogger(DealServiceImpl.class);
 
     private final DealRepository dealRepository;
     private final DealStatusRepository dealStatusRepository;
@@ -67,7 +67,7 @@ public class DealServiceImpl implements DealService {
      * @throws EntityNotFoundException если сделка, статус или тип сделки не найдены
      */
     @Transactional
-    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
+//    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
     public DealDTO saveDeal(DealSaveDTO request) {
 
         log.info("Save deal {}", request);
@@ -93,7 +93,8 @@ public class DealServiceImpl implements DealService {
         deal.setCloseDt(request.getCloseDt());
         deal.setModifyDate(LocalDateTime.now());
 
-        dealTypeRepository.findByIdAndIsActiveTrue(request.getTypeId()).orElseThrow(() -> new EntityNotFoundException("Тип сделки " + request.getTypeId() + " не найден"));
+        dealTypeRepository.findByIdAndIsActiveTrue(request.getTypeId()).orElseThrow(() ->
+                new EntityNotFoundException("Тип сделки " + request.getTypeId() + " не найден"));
         deal.setTypeId(request.getTypeId());
 
         deal = dealRepository.save(deal);
@@ -141,7 +142,7 @@ public class DealServiceImpl implements DealService {
      * @throws EntityNotFoundException если сделка не найдена
      */
     @Transactional
-    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
+//    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
     public DealDTO getDealById(UUID id) {
         log.info("Getting deal by id: {}", id);
 

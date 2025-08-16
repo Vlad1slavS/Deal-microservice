@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +25,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/v1/deal-contractor")
-@Slf4j
 @Tag(name = "DealContractor", description = "API для работы с контрагентами сделок")
 public class DealContractorController {
+
+    private final Logger log = LogManager.getLogger(DealContractorController.class);
+
 
     private final DealContractorService dealContractorService;
 

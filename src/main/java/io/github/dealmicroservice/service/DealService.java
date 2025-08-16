@@ -41,4 +41,5 @@ public interface DealService {
      * @return страница с результатами поиска
      */
     Page<DealDTO> searchDeals(DealSearchDTO request);
+
 }

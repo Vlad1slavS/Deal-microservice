@@ -16,7 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,9 +31,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/ui/deal")
-@Slf4j
 @Tag(name = "UI Deals", description = "Защищенное API для работы со сделками")
 public class UIDealController implements DealControllerContract {
+
+    private final Logger log = LogManager.getLogger(UIDealController.class);
 
     private final DealService dealService;
     private final SecurityUtils securityUtils;
@@ -46,11 +48,9 @@ public class UIDealController implements DealControllerContract {
             summary = "Создать или обновить сделку",
             description = """
                     Создание или обновление сделки с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может создавать/обновлять любые сделки
                     - **SUPERUSER** - может создавать/обновлять любые сделки
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     )
@@ -209,11 +209,9 @@ public class UIDealController implements DealControllerContract {
             summary = "Изменить статус сделки",
             description = """
                     Изменение статуса сделки с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **DEAL_SUPERUSER** - может изменять статус любых сделок
                     - **SUPERUSER** - может изменять статус любых сделок
-                    
                     **Доступные статусы:**
                     - DRAFT - Черновик
                     - ACTIVE - Активная
@@ -376,14 +374,12 @@ public class UIDealController implements DealControllerContract {
             summary = "Получить сделку по ID",
             description = """
                     Получение детальной информации о сделке по её идентификатору:
-                    
                     **Доступ по ролям:**
                     - **USER** - может просматривать только основную информацию о сделке
                     - **CREDIT_USER** - может просматривать кредитные сделки (type = CREDIT)
                     - **OVERDRAFT_USER** - может просматривать овердрафтные сделки (type = OVERDRAFT)
                     - **DEAL_SUPERUSER** - может просматривать любые сделки
                     - **SUPERUSER** - может просматривать любые сделки
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     )
@@ -507,13 +503,11 @@ public class UIDealController implements DealControllerContract {
             summary = "Поиск сделок с пагинацией и фильтрами",
             description = """
                     Поиск сделок с учетом ролевых ограничений:
-                    
                     **Доступ по ролям:**
                     - **CREDIT_USER** - только кредитные сделки (dealType = CREDIT)
                     - **OVERDRAFT_USER** - только овердрафтные сделки (dealType = OVERDRAFT)
                     - **DEAL_SUPERUSER** - все сделки без ограничений
                     - **SUPERUSER** - все сделки без ограничений
-                    
                     """,
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
     )
@@ -667,4 +661,5 @@ public class UIDealController implements DealControllerContract {
         Page<DealDTO> result = dealService.searchDeals(searchRequest);
         return ResponseEntity.ok(result);
     }
+
 }
