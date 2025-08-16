@@ -7,13 +7,9 @@
 Для локального развертывания приложения необходимо установить:
 
 
-- [Docker](https://docs.docker.com/get-docker/)
+- Docker
+- Docker Compose
 
-- [Docker Compose](https://docs.docker.com/compose/install/)
-
-## Архитектура
-
-- **postgres** - база данных PostgreSQL
 
 ## Локальное развертывание
 
@@ -78,3 +74,4 @@ docker-compose logs -f
 - `SPRING_DATASOURCE_USERNAME` - имя пользователя БД
 - `SPRING_DATASOURCE_PASSWORD` - пароль БД
 - `SPRING_LIQUIBASE_CHANGE-LOG` - путь к changelog файлу Liquibase
+- `dealmicroservice.rabbitmq.maxRetries` - максимальное количество попыток для прочтения сообщения в RabbitMQ
