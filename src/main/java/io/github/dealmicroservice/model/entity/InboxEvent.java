@@ -52,4 +52,6 @@ public class InboxEvent {
 
     private LocalDateTime modifyDate;
 
+    private Long version;
+
 }

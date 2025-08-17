@@ -45,7 +45,7 @@ public class InboxService {
 
     @Transactional
     public Long saveInboxEvent(String messageId, String aggregateId, String aggregateType,
-                               String eventType, Object payload) {
+                               String eventType, Object payload, Long version) {
         try {
             String payloadJson = objectMapper.writeValueAsString(payload);
 
@@ -56,11 +56,13 @@ public class InboxService {
                     .eventType(eventType)
                     .payload(payloadJson)
                     .modifyDate(LocalDateTime.now())
+                    .version(version)
                     .build();
 
             InboxEvent savedEvent = inboxEventRepository.save(event);
 
-            log.debug("Inbox event saved: messageId={}, aggregateId={}, id={}", messageId, aggregateId, savedEvent.getId());
+            log.debug("Inbox event saved: messageId={}, aggregateId={}, version={}, id={}",
+                    messageId, aggregateId, version, savedEvent.getId());
 
             return savedEvent.getId();
 
@@ -71,6 +73,12 @@ public class InboxService {
     }
 
     @Transactional
+    public Long saveInboxEvent(String messageId, String aggregateId, String aggregateType,
+                               String eventType, Object payload) {
+        return saveInboxEvent(messageId, aggregateId, aggregateType, eventType, payload, null);
+    }
+
+    @Transactional
     public void markAsProcessed(Long eventId) {
         if (eventId != null) {
             inboxEventRepository.markAsProcessed(eventId, LocalDateTime.now());
@@ -78,27 +86,26 @@ public class InboxService {
     }
 
     /**
-     * Проверяет, является ли сообщение более актуальным чем уже обработанные
+     * Проверяет, является ли сообщение более актуальным чем уже обработанные (только по версии)
      */
-    public boolean isMessageMoreRecent(String aggregateId, LocalDateTime messageModifyDate) {
-
-        if (messageModifyDate == null) {
-            log.debug("Message modify date is null for aggregateId: {}", aggregateId);
+    public boolean isMessageMoreRecent(String aggregateId, Long messageVersion) {
+        if (messageVersion == null) {
+            log.debug("Message version is null for aggregateId: {}, treating as recent", aggregateId);
             return true;
         }
 
-        Optional<InboxEvent> latestProcessed = inboxEventRepository.findLatestProcessedEventByAggregateId(aggregateId);
+        Optional<Long> maxProcessedVersion = inboxEventRepository.findMaxProcessedVersionByAggregateId(aggregateId);
 
-        if (latestProcessed.isEmpty()) {
+        if (maxProcessedVersion.isEmpty()) {
             log.debug("No processed events found for aggregateId: {}, treating as recent", aggregateId);
             return true;
         }
 
-        LocalDateTime lastProcessedModifyDate = latestProcessed.get().getModifyDate();
-        boolean isMoreRecent = messageModifyDate.isAfter(lastProcessedModifyDate);
+        Long currentMaxVersion = maxProcessedVersion.get();
+        boolean isMoreRecent = messageVersion > currentMaxVersion;
 
-        log.debug("Message actuality check for aggregateId: {}, messageDate: {}, lastProcessedDate: {}, isMoreRecent: {}",
-                aggregateId, messageModifyDate, lastProcessedModifyDate, isMoreRecent);
+        log.debug("Message actuality check for aggregateId: {}, messageVersion: {}, maxProcessedVersion: {}, isMoreRecent: {}",
+                aggregateId, messageVersion, currentMaxVersion, isMoreRecent);
 
         return isMoreRecent;
     }

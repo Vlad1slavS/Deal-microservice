@@ -60,6 +60,11 @@ databaseChangeLog:
                   name: modify_date
                   type: TIMESTAMP
                   defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
 
   - changeSet:
       id: idx-inbox-events-message-id

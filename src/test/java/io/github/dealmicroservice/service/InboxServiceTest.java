@@ -36,7 +36,7 @@ class InboxServiceTest {
     @BeforeEach
     void setUp() {
 
-        testPayload = "{\"id\":\"123\",\"name\":\"Test\"}";
+        testPayload = "{\"id\":\"123\",\"name\":\"Test\",\"version\":1}";
         testEvent = InboxEvent.builder()
                 .id(1L)
                 .messageId("test-msg-id")
@@ -47,6 +47,7 @@ class InboxServiceTest {
                 .processed(false)
                 .retryCount(0)
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
     }
 
@@ -57,11 +58,12 @@ class InboxServiceTest {
         String aggregateType = "Contractor";
         String eventType = "UPDATED";
         Object payload = new Object();
+        Long version = 1L;
 
         when(objectMapper.writeValueAsString(payload)).thenReturn(testPayload);
         when(inboxEventRepository.save(any(InboxEvent.class))).thenReturn(testEvent);
 
-        Long result = inboxService.saveInboxEvent(messageId, aggregateId, aggregateType, eventType, payload);
+        Long result = inboxService.saveInboxEvent(messageId, aggregateId, aggregateType, eventType, payload, version);
 
         assertNotNull(result);
         assertEquals(1L, result);
@@ -81,7 +83,6 @@ class InboxServiceTest {
 
         verify(inboxEventRepository).updateRetryInfo(eq(eventId), eq(2), eq(errorMessage), any(LocalDateTime.class));
     }
-
 
     @Test
     void incrementRetry_NullEventId() {
@@ -115,50 +116,66 @@ class InboxServiceTest {
     @Test
     void isMessageMoreRecent_NoProcessedEvents() {
         String aggregateId = "test-aggr-id";
-        LocalDateTime messageModifyDate = LocalDateTime.now();
+        Long messageVersion = 1L;
 
-        when(inboxEventRepository.findLatestProcessedEventByAggregateId(aggregateId))
+        when(inboxEventRepository.findMaxProcessedVersionByAggregateId(aggregateId))
                 .thenReturn(Optional.empty());
 
-        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageModifyDate);
+        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageVersion);
 
         assertTrue(result);
     }
 
     @Test
-    void isMessageMoreRecent_MessageIsNewer() {
+    void isMessageMoreRecent_MessageVersionIsNewer() {
         String aggregateId = "test-aggr-id";
-        LocalDateTime messageModifyDate = LocalDateTime.now();
-        LocalDateTime olderDate = messageModifyDate.minusMinutes(5);
+        Long messageVersion = 3L;
+        Long maxProcessedVersion = 2L;
 
-        InboxEvent processedEvent = InboxEvent.builder()
-                .modifyDate(olderDate)
-                .build();
+        when(inboxEventRepository.findMaxProcessedVersionByAggregateId(aggregateId))
+                .thenReturn(Optional.of(maxProcessedVersion));
 
-        when(inboxEventRepository.findLatestProcessedEventByAggregateId(aggregateId))
-                .thenReturn(Optional.of(processedEvent));
-
-        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageModifyDate);
+        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageVersion);
 
         assertTrue(result);
     }
 
     @Test
-    void isMessageMoreRecent_MessageIsOlder() {
+    void isMessageMoreRecent_MessageVersionIsOlder() {
         String aggregateId = "test-aggr-id";
-        LocalDateTime messageModifyDate = LocalDateTime.now().minusMinutes(10);
-        LocalDateTime newerDate = LocalDateTime.now();
+        Long messageVersion = 1L;
+        Long maxProcessedVersion = 3L;
 
-        InboxEvent processedEvent = InboxEvent.builder()
-                .modifyDate(newerDate)
-                .build();
+        when(inboxEventRepository.findMaxProcessedVersionByAggregateId(aggregateId))
+                .thenReturn(Optional.of(maxProcessedVersion));
 
-        when(inboxEventRepository.findLatestProcessedEventByAggregateId(aggregateId))
-                .thenReturn(Optional.of(processedEvent));
-
-        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageModifyDate);
+        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageVersion);
 
         assertFalse(result);
+    }
+
+    @Test
+    void isMessageMoreRecent_MessageVersionIsSame() {
+        String aggregateId = "test-aggr-id";
+        Long messageVersion = 2L;
+        Long maxProcessedVersion = 2L;
+
+        when(inboxEventRepository.findMaxProcessedVersionByAggregateId(aggregateId))
+                .thenReturn(Optional.of(maxProcessedVersion));
+
+        boolean result = inboxService.isMessageMoreRecent(aggregateId, messageVersion);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void isMessageMoreRecent_NullMessageVersion() {
+        String aggregateId = "test-aggr-id";
+
+        boolean result = inboxService.isMessageMoreRecent(aggregateId, null);
+
+        assertTrue(result);
+        verify(inboxEventRepository, never()).findMaxProcessedVersionByAggregateId(anyString());
     }
 
 }

@@ -26,4 +26,6 @@ public class ContractorMessageDTO {
     @JsonProperty("modify_date")
     private LocalDateTime modifyDate;
 
+    private Long version;
+
 }

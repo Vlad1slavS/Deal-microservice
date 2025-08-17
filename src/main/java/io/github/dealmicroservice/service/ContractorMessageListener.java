@@ -76,17 +76,17 @@ public class ContractorMessageListener {
                         contractorMessage.getId(),
                         "Contractor",
                         "UPDATED",
-                        contractorMessage
+                        contractorMessage,
+                        contractorMessage.getVersion()
                 );
             }
 
 
-            if (!inboxService.isMessageMoreRecent(contractorMessage.getId(), contractorMessage.getModifyDate())) {
-                log.debug("Message is not more recent than already processed: contractorId={}, messageModifyDate={}",
-                        contractorMessage.getId(), contractorMessage.getModifyDate());
+            if (!inboxService.isMessageMoreRecent(contractorMessage.getId(), contractorMessage.getVersion())) {
+                log.debug("Message is not more recent than already processed: contractorId={}, messageVersion={}",
+                        contractorMessage.getId(), contractorMessage.getVersion());
 
                 inboxService.markAsProcessed(inboxEventId);
-
                 return;
             }
 

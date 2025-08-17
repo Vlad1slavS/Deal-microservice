@@ -91,6 +91,7 @@ class ContractorMessageIntegrationTest {
                 .inn("1234567890")
                 .name("Test Contractor")
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
 
         String payload = objectMapper.writeValueAsString(contractor);
@@ -102,12 +103,12 @@ class ContractorMessageIntegrationTest {
         rabbitTemplate.send(RabbitMQConfig.DEALS_CONTRACTOR_QUEUE, message);
 
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-
             Optional<InboxEvent> inboxEvent = inboxEventRepository.findInboxEventByMessageId(messageId);
             assertTrue(inboxEvent.isPresent());
             assertTrue(inboxEvent.get().getProcessed());
             assertEquals("test-contractor", inboxEvent.get().getAggregateId());
             assertEquals("UPDATED", inboxEvent.get().getEventType());
+            assertEquals(1L, inboxEvent.get().getVersion());
         });
     }
 
@@ -122,6 +123,7 @@ class ContractorMessageIntegrationTest {
                 .inn("1234567890")
                 .name("Test Contractor")
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
 
         String payload = objectMapper.writeValueAsString(contractor);
@@ -161,6 +163,7 @@ class ContractorMessageIntegrationTest {
                 .inn("1234567890")
                 .name("Test Contractor")
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
 
         String payload = objectMapper.writeValueAsString(contractor);
@@ -183,7 +186,7 @@ class ContractorMessageIntegrationTest {
                     assertTrue(inboxEvent.get().getRetryCount() > 0);
                     assertNotNull(inboxEvent.get().getErrorMessage());
                     assertTrue(inboxEvent.get().getErrorMessage().contains("Database connection error"));
-        });
+                });
     }
 
     /**
@@ -197,6 +200,7 @@ class ContractorMessageIntegrationTest {
                 .inn("1234567890")
                 .name("Test Contractor")
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
 
         String payload = objectMapper.writeValueAsString(contractor);
@@ -216,6 +220,7 @@ class ContractorMessageIntegrationTest {
                 .payload(payload)
                 .retryCount(3)
                 .processed(false)
+                .version(1L)
                 .build();
 
         inboxEventRepository.save(existingEvent);
@@ -232,19 +237,19 @@ class ContractorMessageIntegrationTest {
     }
 
     /**
-     * Тест обработки сообщений с разными датами модификации (актуальность)
+     * Тест обработки сообщений с разными версиями (актуальность по version)
      */
     @Test
-    void ModifyDateTest_IgnoreOlderMessage() throws Exception {
+    void VersionTest_IgnoreOlderVersionMessage() throws Exception {
         String contractorId = "test-contractor";
-        LocalDateTime now = LocalDateTime.now();
 
         String newMessageId = UUID.randomUUID().toString();
         ContractorMessageDTO newerContractor = ContractorMessageDTO.builder()
                 .id(contractorId)
                 .inn("1234567890")
                 .name("Updated Contractor")
-                .modifyDate(now)
+                .modifyDate(LocalDateTime.now())
+                .version(2L)
                 .build();
 
         String newPayload = objectMapper.writeValueAsString(newerContractor);
@@ -258,6 +263,7 @@ class ContractorMessageIntegrationTest {
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
             Optional<InboxEvent> inboxEvent = inboxEventRepository.findInboxEventByMessageId(newMessageId);
             assertTrue(inboxEvent.isPresent() && inboxEvent.get().getProcessed());
+            assertEquals(2L, inboxEvent.get().getVersion());
         });
 
         reset(dealContractorService);
@@ -267,7 +273,8 @@ class ContractorMessageIntegrationTest {
                 .id(contractorId)
                 .inn("1234567890")
                 .name("Old Contractor")
-                .modifyDate(now.minusHours(1))
+                .modifyDate(LocalDateTime.now().plusHours(1))
+                .version(1L)
                 .build();
 
         String oldPayload = objectMapper.writeValueAsString(olderContractor);
@@ -284,6 +291,66 @@ class ContractorMessageIntegrationTest {
             Optional<InboxEvent> inboxEvent = inboxEventRepository.findInboxEventByMessageId(oldMessageId);
             assertTrue(inboxEvent.isPresent());
             assertTrue(inboxEvent.get().getProcessed());
+            assertEquals(1L, inboxEvent.get().getVersion());
+        });
+    }
+
+    /**
+     * Тест обработки сообщения с более новой версией
+     */
+    @Test
+    void VersionTest_ProcessNewerVersionMessage() throws Exception {
+        String contractorId = "test-contractor";
+
+        String oldMessageId = UUID.randomUUID().toString();
+        ContractorMessageDTO olderContractor = ContractorMessageDTO.builder()
+                .id(contractorId)
+                .inn("1234567890")
+                .name("Old Contractor")
+                .modifyDate(LocalDateTime.now())
+                .version(1L)
+                .build();
+
+        String oldPayload = objectMapper.writeValueAsString(olderContractor);
+        Message oldMessage = MessageBuilder.withBody(oldPayload.getBytes())
+                .setMessageId(oldMessageId)
+                .setContentType("text/plain")
+                .build();
+
+        rabbitTemplate.send(RabbitMQConfig.DEALS_CONTRACTOR_QUEUE, oldMessage);
+
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            Optional<InboxEvent> inboxEvent = inboxEventRepository.findInboxEventByMessageId(oldMessageId);
+            assertTrue(inboxEvent.isPresent() && inboxEvent.get().getProcessed());
+            verify(dealContractorService, times(1)).updateContractorInDeals(any(ContractorMessageDTO.class));
+        });
+
+        reset(dealContractorService);
+
+        String newMessageId = UUID.randomUUID().toString();
+        ContractorMessageDTO newerContractor = ContractorMessageDTO.builder()
+                .id(contractorId)
+                .inn("1234567890")
+                .name("Updated Contractor")
+                .modifyDate(LocalDateTime.now().minusHours(1))
+                .version(3L)
+                .build();
+
+        String newPayload = objectMapper.writeValueAsString(newerContractor);
+        Message newMessage = MessageBuilder.withBody(newPayload.getBytes())
+                .setMessageId(newMessageId)
+                .setContentType("text/plain")
+                .build();
+
+        rabbitTemplate.send(RabbitMQConfig.DEALS_CONTRACTOR_QUEUE, newMessage);
+
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            verify(dealContractorService, times(1)).updateContractorInDeals(any(ContractorMessageDTO.class));
+
+            Optional<InboxEvent> inboxEvent = inboxEventRepository.findInboxEventByMessageId(newMessageId);
+            assertTrue(inboxEvent.isPresent());
+            assertTrue(inboxEvent.get().getProcessed());
+            assertEquals(3L, inboxEvent.get().getVersion());
         });
     }
 

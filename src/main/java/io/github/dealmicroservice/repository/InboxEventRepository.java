@@ -25,7 +25,7 @@ public interface InboxEventRepository extends JpaRepository<InboxEvent, Long> {
     @Query("UPDATE InboxEvent SET retryCount = :retryCount, errorMessage = :errorMessage, modifyDate = :modifyDate WHERE id = :id")
     void updateRetryInfo(Long id, Integer retryCount, String errorMessage, LocalDateTime modifyDate);
 
-    @Query("SELECT ie FROM InboxEvent ie WHERE ie.aggregateId = :aggregateId AND ie.processed = true ORDER BY ie.modifyDate DESC LIMIT 1")
-    Optional<InboxEvent> findLatestProcessedEventByAggregateId(String aggregateId);
+    @Query("SELECT MAX(ie.version) FROM InboxEvent ie WHERE ie.aggregateId = :aggregateId AND ie.processed = true AND ie.version IS NOT NULL")
+    Optional<Long> findMaxProcessedVersionByAggregateId(String aggregateId);
 
 }

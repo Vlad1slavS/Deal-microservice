@@ -58,9 +58,10 @@ class ContractorMessageListenerTest {
                 .inn("1234567890")
                 .name("Test Contractor")
                 .modifyDate(LocalDateTime.now())
+                .version(1L)
                 .build();
 
-        messagePayload = "{\"id\":\"test-contractor\",\"inn\":\"1234567890\",\"name\":\"Test Contractor\"}";
+        messagePayload = "{\"id\":\"test-contractor\",\"inn\":\"1234567890\",\"name\":\"Test Contractor\",\"version\":1}";
 
         inboxEvent = InboxEvent.builder()
                 .id(1L)
@@ -69,6 +70,7 @@ class ContractorMessageListenerTest {
                 .processed(false)
                 .retryCount(0)
                 .payload(messagePayload)
+                .version(1L)
                 .build();
 
         when(message.getMessageProperties()).thenReturn(messageProperties);
@@ -83,13 +85,13 @@ class ContractorMessageListenerTest {
 
         when(inboxService.getInboxEventByMessageId(messageId)).thenReturn(Optional.empty());
         when(objectMapper.readValue(messagePayload, ContractorMessageDTO.class)).thenReturn(contractorMessage);
-        when(inboxService.saveInboxEvent(anyString(), anyString(), anyString(), anyString(), any()))
+        when(inboxService.saveInboxEvent(anyString(), anyString(), anyString(), anyString(), any(), eq(1L)))
                 .thenReturn(1L);
-        when(inboxService.isMessageMoreRecent(anyString(), any(LocalDateTime.class))).thenReturn(true);
+        when(inboxService.isMessageMoreRecent(anyString(), eq(1L))).thenReturn(true);
 
         contractorMessageListener.handleContractorUpdate(messagePayload, message);
 
-        verify(inboxService).saveInboxEvent(messageId, "test-contractor", "Contractor", "UPDATED", contractorMessage);
+        verify(inboxService).saveInboxEvent(messageId, "test-contractor", "Contractor", "UPDATED", contractorMessage, 1L);
         verify(dealContractorService).updateContractorInDeals(contractorMessage);
         verify(inboxService).markAsProcessed(1L);
     }
@@ -126,16 +128,16 @@ class ContractorMessageListenerTest {
     }
 
     /**
-     * Тест игнорирования устаревшего сообщения.
+     * Тест игнорирования сообщения с устаревшей версией.
      */
     @Test
     void ContractorUpdate_MessageNotMoreRecent() throws JsonProcessingException {
 
         when(inboxService.getInboxEventByMessageId(messageId)).thenReturn(Optional.empty());
         when(objectMapper.readValue(messagePayload, ContractorMessageDTO.class)).thenReturn(contractorMessage);
-        when(inboxService.saveInboxEvent(anyString(), anyString(), anyString(), anyString(), any()))
+        when(inboxService.saveInboxEvent(anyString(), anyString(), anyString(), anyString(), any(), eq(1L)))
                 .thenReturn(1L);
-        when(inboxService.isMessageMoreRecent(anyString(), any(LocalDateTime.class))).thenReturn(false);
+        when(inboxService.isMessageMoreRecent(anyString(), eq(1L))).thenReturn(false);
 
         contractorMessageListener.handleContractorUpdate(messagePayload, message);
 
@@ -147,7 +149,7 @@ class ContractorMessageListenerTest {
      * Тест обработки сообщения без messageId.
      */
     @Test
-    void handleContractorUpdate_NoMessageId() {
+    void ContractorUpdate_NoMessageId() {
 
         when(messageProperties.getMessageId()).thenReturn(null);
 
@@ -155,6 +157,32 @@ class ContractorMessageListenerTest {
                 contractorMessageListener.handleContractorUpdate(messagePayload, message));
 
         verify(inboxService, never()).getInboxEventByMessageId(anyString());
+    }
+
+    /**
+     * Тест обработки сообщения с версией null
+     */
+    @Test
+    void ContractorUpdate_NullVersion_Success() throws JsonProcessingException {
+        ContractorMessageDTO contractorWithoutVersion = ContractorMessageDTO.builder()
+                .id("test-contractor")
+                .inn("1234567890")
+                .name("Test Contractor")
+                .modifyDate(LocalDateTime.now())
+                .version(null)
+                .build();
+
+        when(inboxService.getInboxEventByMessageId(messageId)).thenReturn(Optional.empty());
+        when(objectMapper.readValue(messagePayload, ContractorMessageDTO.class)).thenReturn(contractorWithoutVersion);
+        when(inboxService.saveInboxEvent(anyString(), anyString(), anyString(), anyString(), any(), isNull()))
+                .thenReturn(1L);
+        when(inboxService.isMessageMoreRecent(anyString(), isNull())).thenReturn(true);
+
+        contractorMessageListener.handleContractorUpdate(messagePayload, message);
+
+        verify(inboxService).saveInboxEvent(messageId, "test-contractor", "Contractor", "UPDATED", contractorWithoutVersion, null);
+        verify(dealContractorService).updateContractorInDeals(contractorWithoutVersion);
+        verify(inboxService).markAsProcessed(1L);
     }
 
 }
