@@ -11,10 +11,12 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Принимает входящие сообщения и обрабатывает их
+ */
 @Component
 public class ContractorMessageListener {
 
@@ -36,7 +38,6 @@ public class ContractorMessageListener {
     }
 
     @RabbitListener(queues = RabbitMQConfig.DEALS_CONTRACTOR_QUEUE)
-    @Transactional
     public void handleContractorUpdate(String messagePayload, Message message) {
 
         String messageId = message.getMessageProperties().getMessageId();
@@ -99,6 +100,7 @@ public class ContractorMessageListener {
         } catch (JsonProcessingException e) {
 
             log.error("Failed to parse contractor message: messageId={}", messageId, e);
+
             if (inboxEventId != null) {
                 inboxService.incrementRetry(inboxEventId, "JSON parsing error: " + e.getMessage());
             }
@@ -108,6 +110,7 @@ public class ContractorMessageListener {
 
             log.error("Failed to process contractor update: messageId={}, contractorId={}",
                     messageId, contractorMessage != null ? contractorMessage.getId() : "unknown", e);
+
             if (inboxEventId != null) {
                 inboxService.incrementRetry(inboxEventId, e.getMessage());
             }

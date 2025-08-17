@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Сервис для работы с Inbox данными
+ */
 @Service
 public class InboxService {
 
@@ -80,7 +83,7 @@ public class InboxService {
     public boolean isMessageMoreRecent(String aggregateId, LocalDateTime messageModifyDate) {
 
         if (messageModifyDate == null) {
-            log.warn("Message modify date is null for aggregateId: {}", aggregateId);
+            log.debug("Message modify date is null for aggregateId: {}", aggregateId);
             return true;
         }
 

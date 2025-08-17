@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Репозиторий для работы с Inbox данными
+ */
 @Repository
 public interface InboxEventRepository extends JpaRepository<InboxEvent, Long> {
 

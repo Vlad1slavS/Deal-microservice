@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Сущность для сохранения события в таблицу Inbox
+ */
 @Entity
 @Data
 @NoArgsConstructor
@@ -44,6 +47,7 @@ public class InboxEvent {
 
     private String errorMessage;
 
+    @Builder.Default
     private Integer retryCount = 0;
 
     private LocalDateTime modifyDate;
