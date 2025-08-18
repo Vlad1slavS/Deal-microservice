@@ -8,7 +8,9 @@ import io.github.dealmicroservice.model.entity.InboxEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -28,13 +30,15 @@ public class ContractorMessageListener {
     private final DealContractorService dealContractorService;
     private final InboxService inboxService;
     private final ObjectMapper objectMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     public ContractorMessageListener(DealContractorService dealContractorService,
                                      InboxService inboxService,
-                                     ObjectMapper objectMapper) {
+                                     ObjectMapper objectMapper, RabbitTemplate rabbitTemplate) {
         this.dealContractorService = dealContractorService;
         this.inboxService = inboxService;
         this.objectMapper = objectMapper;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @RabbitListener(queues = RabbitMQConfig.DEALS_CONTRACTOR_QUEUE)
@@ -62,6 +66,7 @@ public class ContractorMessageListener {
                 }
                 if (event.getRetryCount() >= maxRetries) {
                     log.error("Max retries exceeded for messageId={}", messageId);
+                    sendToFinalDLQ(messagePayload, message, event);
                     inboxService.markAsProcessed(event.getId());
                     return;
                 }
@@ -98,24 +103,71 @@ public class ContractorMessageListener {
                     contractorMessage.getId(), messageId);
 
         } catch (JsonProcessingException e) {
-
             log.error("Failed to parse contractor message: messageId={}", messageId, e);
 
             if (inboxEventId != null) {
-                inboxService.incrementRetry(inboxEventId, "JSON parsing error: " + e.getMessage());
+                sendToRetryOrFinalQueue(messagePayload, message, inboxEventId, "JSON parsing error: " + e.getMessage());
             }
             throw new RuntimeException("Failed to parse message", e);
 
         } catch (Exception e) {
-
             log.error("Failed to process contractor update: messageId={}, contractorId={}",
                     messageId, contractorMessage != null ? contractorMessage.getId() : "unknown", e);
 
             if (inboxEventId != null) {
-                inboxService.incrementRetry(inboxEventId, e.getMessage());
+                sendToRetryOrFinalQueue(messagePayload, message, inboxEventId, e.getMessage());
             }
             throw new RuntimeException("Failed to process contractor update", e);
+        }
+    }
 
+    private void sendToFinalDLQ(String messagePayload, Message originalMessage, InboxEvent event) {
+        try {
+            MessageProperties properties = new MessageProperties();
+
+            if (originalMessage.getMessageProperties().getHeaders() != null) {
+                properties.getHeaders().putAll(originalMessage.getMessageProperties().getHeaders());
+            }
+
+            properties.getHeaders().put("x-final-dlq-reason", "max-retries-exceeded");
+            properties.getHeaders().put("x-retry-count", event.getRetryCount());
+            properties.getHeaders().put("x-original-queue", RabbitMQConfig.DEALS_CONTRACTOR_QUEUE);
+            properties.getHeaders().put("x-inbox-event-id", event.getId());
+
+            properties.setMessageId(originalMessage.getMessageProperties().getMessageId());
+
+            Message finalMessage = new Message(messagePayload.getBytes(), properties);
+
+            rabbitTemplate.send(
+                    RabbitMQConfig.DEAL_FINAL_DEAD_EXCHANGE,
+                    RabbitMQConfig.FINAL_DEAD_ROUTING_KEY,
+                    finalMessage
+            );
+
+            log.info("Message sent to final DLQ: messageId={}, retryCount={}",
+                    originalMessage.getMessageProperties().getMessageId(), event.getRetryCount());
+
+        } catch (Exception e) {
+            log.error("Failed to send message to final DLQ: messageId={}",
+                    originalMessage.getMessageProperties().getMessageId(), e);
+        }
+    }
+
+    private void sendToRetryOrFinalQueue(String messagePayload, Message originalMessage,
+                                       Long inboxEventId, String errorMessage) {
+
+        Optional<InboxEvent> eventOpt = inboxService.getInboxEventById(inboxEventId);
+        if (eventOpt.isPresent()) {
+            InboxEvent event = eventOpt.get();
+
+            if (event.getRetryCount() >= maxRetries) {
+                log.warn("Max retries reached for messageId={}, sending to final DLQ",
+                        originalMessage.getMessageProperties().getMessageId());
+                sendToFinalDLQ(messagePayload, originalMessage, event);
+                inboxService.markAsProcessed(inboxEventId);
+            } else {
+                inboxService.incrementRetry(inboxEventId, errorMessage);
+            }
         }
     }
 

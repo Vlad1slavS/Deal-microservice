@@ -73,16 +73,14 @@ public class InboxService {
     }
 
     @Transactional
-    public Long saveInboxEvent(String messageId, String aggregateId, String aggregateType,
-                               String eventType, Object payload) {
-        return saveInboxEvent(messageId, aggregateId, aggregateType, eventType, payload, null);
-    }
-
-    @Transactional
     public void markAsProcessed(Long eventId) {
         if (eventId != null) {
             inboxEventRepository.markAsProcessed(eventId, LocalDateTime.now());
         }
+    }
+
+    public Optional<InboxEvent> getInboxEventById(Long eventId) {
+        return inboxEventRepository.findById(eventId);
     }
 
     /**

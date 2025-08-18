@@ -25,12 +25,15 @@ public class RabbitMQConfig {
     private static final String CONTRACTORS_CONTRACTOR_EXCHANGE = "contractors_contractor_exchange";
     private static final String DEALS_DEAD_EXCHANGE = "deals_dead_exchange";
     private static final String DEAL_CONTRACTOR_DEAD_EXCHANGE = "deal_contractor_dead_exchange";
+    public static final String DEAL_FINAL_DEAD_EXCHANGE = "deals_final_dead_exchange";
 
     public static final String DEALS_CONTRACTOR_QUEUE = "deals_contractor_queue";
     private static final String DEALS_CONTRACTOR_DEAD_QUEUE = "deals_contractor_dead_queue";
+    public static final String DEALS_FINAL_DEAD_QUEUE =  "deals_final_dead_queue";
 
     private static final String CONTRACTOR_ROUTING_KEY = "contractor.updated";
     private static final String DEAD_LETTER_ROUTING_KEY = "contractor.dead";
+    public static final String FINAL_DEAD_ROUTING_KEY = "contractor.final.dead";
 
     public static final int DEAD_LETTER_TTL = 300000;
 
@@ -49,6 +52,10 @@ public class RabbitMQConfig {
         return new DirectExchange(DEAL_CONTRACTOR_DEAD_EXCHANGE);
     }
 
+    public DirectExchange dealFinalDeadExchange() {
+        return new DirectExchange(DEAL_FINAL_DEAD_EXCHANGE);
+    }
+
     @Bean
     public Queue dealsContractorQueue() {
         Map<String, Object> args = new HashMap<>();
@@ -61,6 +68,7 @@ public class RabbitMQConfig {
                 .build();
     }
 
+
     @Bean
     public Queue dealsContractorDeadQueue() {
         Map<String, Object> args = new HashMap<>();
@@ -71,6 +79,13 @@ public class RabbitMQConfig {
         return QueueBuilder
                 .durable(DEALS_CONTRACTOR_DEAD_QUEUE)
                 .withArguments(args)
+                .build();
+    }
+
+    @Bean
+    public Queue dealsMaxRetriesDeadQueue() {
+        return QueueBuilder
+                .durable(DEALS_FINAL_DEAD_QUEUE)
                 .build();
     }
 
@@ -96,6 +111,14 @@ public class RabbitMQConfig {
                 .bind(dealsContractorQueue())
                 .to(dealContractorDeadExchange())
                 .with(CONTRACTOR_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding dealsMaxRetriesDeadBinding() {
+        return BindingBuilder
+                .bind(dealsMaxRetriesDeadQueue())
+                .to(dealsDeadExchange())
+                .with(FINAL_DEAD_ROUTING_KEY);
     }
 
     @Bean
