@@ -1,0 +1,122 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-inbox-events-table
+      author: vladislav
+      changes:
+        - createTable:
+            tableName: inbox_events
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: message_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: aggregate_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: aggregate_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: payload
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: processed
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: received_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: processed_at
+                  type: TIMESTAMP
+              - column:
+                  name: error_message
+                  type: TEXT
+              - column:
+                  name: retry_count
+                  type: INTEGER
+                  defaultValueNumeric: 0
+              - column:
+                  name: modify_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+
+  - changeSet:
+      id: idx-inbox-events-message-id
+      author: vladislav
+      changes:
+        - createIndex:
+            tableName: inbox_events
+            indexName: idx_inbox_events_message_id
+            columns:
+              - column:
+                  name: message_id
+
+  - changeSet:
+      id: idx-inbox-events-processed
+      author: vladislav
+      changes:
+        - createIndex:
+            tableName: inbox_events
+            indexName: idx_inbox_events_processed
+            columns:
+              - column:
+                  name: processed
+
+  - changeSet:
+      id: idx-inbox-events-aggregate-id
+      author: vladislav
+      changes:
+        - createIndex:
+            tableName: inbox_events
+            indexName: idx_inbox_events_aggregate_id
+            columns:
+              - column:
+                  name: aggregate_id
+
+  - changeSet:
+      id: idx-inbox-events-received-at
+      author: vladislav
+      changes:
+        - createIndex:
+            tableName: inbox_events
+            indexName: idx_inbox_events_received_at
+            columns:
+              - column:
+                  name: received_at
+
+  - changeSet:
+      id: idx-inbox-events-modify-date
+      author: vladislav
+      changes:
+        - createIndex:
+            tableName: inbox_events
+            indexName: idx_inbox_events_modify_date
+            columns:
+              - column:
+                  name: modify_date

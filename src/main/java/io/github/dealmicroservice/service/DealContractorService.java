@@ -1,6 +1,7 @@
 package io.github.dealmicroservice.service;
 
 import io.github.dealmicroservice.exception.EntityNotFoundException;
+import io.github.dealmicroservice.model.dto.ContractorMessageDTO;
 import io.github.dealmicroservice.model.dto.ContractorToRoleDTO;
 import io.github.dealmicroservice.model.dto.DealContractorDTO;
 
@@ -43,5 +44,7 @@ public interface DealContractorService {
      * @throws EntityNotFoundException если связь контрагента с ролью не найдена
      */
     void deleteRoleFromContractor(UUID contractorId, String roleId);
+
+    void updateContractorInDeals(ContractorMessageDTO contractorMessage);
 
 }
