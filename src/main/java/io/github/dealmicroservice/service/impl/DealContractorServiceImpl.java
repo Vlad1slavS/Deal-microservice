@@ -1,4 +1,4 @@
-package io.github.dealmicroservice.service;
+package io.github.dealmicroservice.service.impl;
 
 import io.github.dealmicroservice.exception.EntityNotFoundException;
 import io.github.dealmicroservice.mapping.ContractorMapping;
@@ -11,6 +11,7 @@ import io.github.dealmicroservice.repository.ContractorRoleRepository;
 import io.github.dealmicroservice.repository.ContractorToRoleRepository;
 import io.github.dealmicroservice.repository.DealContractorRepository;
 import io.github.dealmicroservice.repository.DealRepository;
+import io.github.dealmicroservice.service.DealContractorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
