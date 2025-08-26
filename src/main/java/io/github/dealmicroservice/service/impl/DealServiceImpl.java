@@ -1,6 +1,5 @@
-package io.github.dealmicroservice.service;
+package io.github.dealmicroservice.service.impl;
 
-//import io.github.auditlib.annotation.AuditLog;
 import io.github.dealmicroservice.exception.EntityNotFoundException;
 import io.github.dealmicroservice.mapping.DealMapping;
 import io.github.dealmicroservice.model.dto.DealDTO;
@@ -11,8 +10,11 @@ import io.github.dealmicroservice.repository.DealRepository;
 import io.github.dealmicroservice.repository.DealStatusRepository;
 import io.github.dealmicroservice.repository.DealTypeRepository;
 import io.github.dealmicroservice.repository.DealSpecification;
+import io.github.dealmicroservice.service.DealService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -67,7 +69,7 @@ public class DealServiceImpl implements DealService {
      * @throws EntityNotFoundException если сделка, статус или тип сделки не найдены
      */
     @Transactional
-//    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
+    @CacheEvict(cacheNames = "deals", key = "#result.id")
     public DealDTO saveDeal(DealSaveDTO request) {
 
         log.info("Save deal {}", request);
@@ -114,6 +116,7 @@ public class DealServiceImpl implements DealService {
      * @throws EntityNotFoundException если сделка или статус не найдены
      */
     @Transactional
+    @CacheEvict(cacheNames = "deals", key = "#id")
     public DealDTO changeStatus(UUID id, String statusId) {
 
         log.info("Changing deal status for id: {}", id);
@@ -142,7 +145,7 @@ public class DealServiceImpl implements DealService {
      * @throws EntityNotFoundException если сделка не найдена
      */
     @Transactional
-//    @AuditLog(logLevel = AuditLog.LogLevel.DEBUG)
+    @Cacheable(cacheNames = "deals", key = "#id")
     public DealDTO getDealById(UUID id) {
         log.info("Getting deal by id: {}", id);
 
